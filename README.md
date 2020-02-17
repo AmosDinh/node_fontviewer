@@ -7,4 +7,4 @@ make a shortcut of myfont_organizer.bat to desktop, then doubleclick
  
 runs in your browser
 
-![](example.jpg)
+![](demo.jpg)
