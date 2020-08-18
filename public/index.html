@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- http://localhost:3000/public/index.html -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <style>
+        body {
+            background-color: #f1f1f1;
+            padding-top: 50px;
+        }
+
+        a {
+            color: rgba(0, 0, 0, 0.767);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        header input {
+            display: block;
+            width: 25px;
+            height: 25px;
+            margin-top: 20px;
+        }
+
+        header #fontsize {
+            width: 35px;
+            border: none;
+            background-color: transparent;
+        }
+
+
+
+        body>input {
+
+            border: white 0px solid;
+            height: 40px;
+            width: 500px;
+            padding: 3px;
+            margin: 0 auto;
+            display: block;
+
+            right: 0;
+            top: 5px;
+            margin-bottom: 50px;
+            font-size: 25px;
+            background-color: transparent;
+            border-bottom: gainsboro 2px solid;
+        }
+
+        input:focus {
+            outline: none;
+        }
+
+        .FontCell {
+
+
+            padding: 5px;
+            border: solid 0px white;
+            border-radius: 4px;
+
+            transition: box-shadow 0.2s, background-color 0.2s;
+
+        }
+
+        .FontCell span {
+
+            font-family: Arial, Helvetica, sans-serif;
+            width: 100%;
+            text-align: right;
+            display: inline-block;
+            font-size: 11px;
+
+
+
+        }
+
+        .FontCell input {
+            margin-top: 20px;
+
+            width: 100%;
+            display: inline-block;
+            overflow-x: hidden;
+            background: transparent;
+            height: 100%;
+            border: none;
+            text-align: center;
+
+        }
+
+        .FontCell:hover {
+            background: #e2e2e2;
+            box-shadow: 0px 0px 3px 2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+
+    <header>
+        <input id="Light" type="checkbox" value="Light">
+        <label for="Light" style="font-weight: lighter;">Light</label>
+        <input id="Regular" type="checkbox" value="Regular">
+        <label for="Regular">Regular</label>
+        <input id="Bold" type="checkbox" value="Bold">
+        <label for="Bold" style="font-weight: bold;">Bold</label>
+        <input id="SemiBold" type="checkbox" value="SemiBold">
+        <label for="SemiBold" style="font-weight: 400;">SemiBold</label>
+        <input id="Italic" type="checkbox" value="Italic">
+        <label for="Italic" style="font-style: italic;">Italic</label>
+        <input id="fontsize" value="30" type="number">
+    </header>
+    <main>
+    </main>
+
+    <script>
+        let font_index = {};
+        let dir_index;
+        const relative_to_myfontsjs = "../"
+
+
+        function initFontListener() {
+            $("header input").on('click', function (event) {
+                const inputs = document.getElementsByTagName('header')[0].getElementsByTagName('input');
+                let matcharr = []
+                for (var i = 0; i < inputs.length; i++)
+                    if (inputs[i].checked)
+                        matcharr.push(inputs[i].value.toLowerCase())
+
+                const temp = document.getElementsByClassName('FontCell')
+                let doesnotincludeall = true;
+                for (var i = 0; i < temp.length; i++) {
+                    for (var j = 0; j < matcharr.length; j++)
+                        if (!temp[i].children[1].innerHTML.toLowerCase().includes(matcharr[j])) {
+                            temp[i].style.display = "none"
+                            break
+                        } else
+                            temp[i].style.display = null
+
+                }
+                if (matcharr.length == 0) {
+                    for (var i = 0; i < temp.length; i++) {
+                        temp[i].style.display = null
+
+                    }
+                }
+
+            })
+            $(".SingleCell").on('input', function (event) {
+                $(".SingleCell").val(event.target.value)
+            });
+            $(".SingleCell").on('focus', function (event) {
+                event.target.value = ""
+
+            })
+            $("#fontsize").on('input', function (event) {
+                $(".SingleCell").css("font-size", event.target.value + "px")
+            });
+            $(".SingleCell").css("font-size", $("#fontsize").val() + "px")
+
+        }
+
+
+        $.ajax({
+            url: 'http://localhost:3000/test',
+            complete: function (data) {
+                //receive path-tree object from myfonts.js
+                oncomplete(data)
+            }
+        });
+
+        function oncomplete(tdir_index) {
+
+            var head = document.head || document.getElementsByTagName('head')[0],
+                style = document.createElement('style');
+            style.id = "style"
+            head.appendChild(style);
+            style.type = 'text/css';
+
+            dir_index = JSON.parse(tdir_index.responseText)
+            console.log(dir_index)
+
+            for (var key in dir_index.children) {
+                const path = dir_index.children[key].path
+                if (isFontFile(path)) {
+                    font_index[path.slice(0, path.length - 4)] = [path]
+
+                } else {
+
+                    font_index[path] = findAllFonts(dir_index.children[key])
+                    if (font_index[path].length == 0)
+                        delete font_index[path]
+                }
+
+
+            }
+            addFontFace()
+            initFontListener()
+        }
+
+        function isFontFile(path) {
+            return path.slice(path.length - 4) == ".ttf" || path.slice(path.length - 4) == ".otf" || path.slice(path
+                    .length - 4) == ".eot" || path.slice(path.length - 4) == "woff" || path.slice(path.length -
+                    4) ==
+                "off2"
+        }
+
+        function findAllFonts(obj) {
+            let allFonts = [];
+            const path = obj.path
+            if (isFontFile(path)) {
+
+                allFonts.push(path)
+            } else {
+                for (var key in obj.children) {
+                    let a = findAllFonts(obj.children[key])
+                    allFonts = allFonts.concat(a)
+                }
+            }
+            return allFonts
+        }
+
+        function addFontFace() {
+            for (var key in font_index) {
+                const onefont = font_index[key]
+                let tarr = []
+                for (var i = 0; i < onefont.length; i++) {
+                    const temp = getFontName(onefont[i])
+                    if (!tarr.includes(temp)) {
+                        tarr.push(temp)
+                        addFontCell(temp, relative_to_myfontsjs + onefont[i])
+                    }
+                }
+            }
+        }
+
+        function addFontCell(name, url) {
+            //add @font-face
+            const css = "@font-face{font-family:'" + name + "';src: url('" + (url.split("\\").join("/")) +
+                "') format('" + getFontFormat(url) + "');}";
+            if (style.styleSheet) {
+                // This is required for IE8 and below.
+                style.styleSheet.cssText += css;
+            } else {
+                style.appendChild(document.createTextNode(css));
+            }
+
+            //add inline html
+            let div = document.createElement('div');
+            div.classList.add('FontCell')
+            div.innerHTML =
+                "<input class='SingleCell' style='font-family:" + name +
+                "' value='Upon the heath'><span> <a href='" + (url.split("\\").join(
+                    "/")) + "'>" +
+                name + "</a></span>"
+            div.style.fontFamily = "'" + name + "'";
+            document.getElementsByTagName('main')[0].appendChild(div);
+        }
+
+        function getFontName(str) {
+            str = str.substr(str.lastIndexOf("\\") + 1)
+            str = str.substr(0, str.lastIndexOf("."))
+            if (str[1] == "_") str = str.substr(2)
+            return str
+        }
+
+        function getFontFormat(str) {
+            str = str.substr(str.lastIndexOf("\\") + 1)
+            str = str.substr(str.lastIndexOf(".") + 1)
+            if (str == "ttf")
+                str = "truetype"
+            else if (str == "otf")
+                str = "opentype"
+            return str
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,12 +1,16 @@
-*
+# *
 !fonts
 fonts/*
-!myfonts.js
-!package-lock.json
-!package.json
-!public/ 
-!myfont_organizer.bat
-!readme.md
-!demo.jpg
-!Desktop.gif
-!.gitignore
+.json
+.vscode
+node_modules
+.lnk
+# !myfonts.js
+# !package-lock.json
+# !package.json
+# !public
+# !myfont_organizer.bat
+# !readme.md
+# !demo.jpg
+# !Desktop.gif
+# !.gitignore
