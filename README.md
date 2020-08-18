@@ -7,4 +7,6 @@ make a shortcut of myfont_organizer.bat to desktop.
  
 runs in your browser
 
+download the fonts for quick access by clicking its link
+
 ![](Desktop.gif)
