@@ -4,7 +4,7 @@ Requirements: node.js<br>
 
 >runs in your browser
 
->save fonts under the `fonts/` folder as file or as folder, no zip
+>save fonts under the `fonts` folder as file or as folder, no zip
 
 >create a shortcut to myfont_organizer.bat on your desktop
 
