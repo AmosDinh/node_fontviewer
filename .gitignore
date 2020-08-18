@@ -1,5 +1,6 @@
 # *
 fonts/*
+!fonts/.keep
 .json
 .vscode
 node_modules
