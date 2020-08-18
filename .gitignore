@@ -1,5 +1,4 @@
 # *
-!fonts
 fonts/*
 .json
 .vscode
